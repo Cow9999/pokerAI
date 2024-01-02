@@ -2,6 +2,7 @@ import java.util.*;
 
 // Main class for the poker hand dealer
 public class PockerHandDealer { 
+  
       private static void playGame(Scanner scanner) {
         Deck deck = new Deck();
         deck.shuffle();
@@ -78,11 +79,12 @@ public class PockerHandDealer {
               double handRank = PokerHandEvaluator.evaluateHand(player.getHand(), deal);
               String handType = PokerHandEvaluator.getHandName(handRank);
               System.out.println("Player " + (i + 1) + "'s Hand: " + player.getHand() + " - " + handType);
+              handranks.add(handRank);
           } else {
               System.out.println("Player " + (i + 1) + " folded.");
           }
       }
-        checkWin(players, getPot(), deal);
+      Player.checkWin(players, deal);
       }
         //if (handType1.equals(handType2) && handRank1 == handRank2) {
           //System.out.println(SamHandEval.determineHigherHand(player1.getHand(), player2.getHand()));
