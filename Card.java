@@ -1,0 +1,29 @@
+public class Card {
+        public String suit;
+        public Integer rank;
+    
+        // Card constructor
+        public Card(String cardCode) {
+            this.suit = cardCode.substring(0, 1); // Extracting the suit
+            this.rank = parseRank(cardCode.substring(1)); // Extracting and parsing the rank
+        }
+    
+        private Integer parseRank(String rankStr) {
+            // Convert rank from string to integer, e.g., "J" to 11, "Q" to 12, etc.
+            switch (rankStr) {
+                case "J": return 11;
+                case "Q": return 12;
+                case "K": return 13;
+                case "A": return 14;
+                default: return Integer.parseInt(rankStr); // For numeric ranks
+            }
+        }
+    
+        public String toString() {
+            return suit + rank;
+        }
+        public Integer getRank() {
+          return this.rank;
+      }
+  
+    }
