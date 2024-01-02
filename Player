@@ -112,7 +112,7 @@ public class Player {
             System.out.println("Action ignored due to previous fold.");
           }
     }
-        private static List<Player> checkWin(List<Player> players, int pot, List<Card> communityCards) {
+        public static List<Player> checkWin(List<Player> players, int pot, List<Card> communityCards) {
             double highestRank = 0;
             List<Player> winners = new ArrayList<>();
     
