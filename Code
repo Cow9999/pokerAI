@@ -1,0 +1,503 @@
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Scanner;
+
+public class Game {
+    private Deck deck;
+    private ArrayList<Player> players;
+    private ArrayList<Card> communityCards;
+    private Scanner scanner;
+
+    public Game(int numPlayers) {
+        this.scanner = new Scanner(System.in);
+        this.deck = new Deck();
+        this.players = new ArrayList<>();
+        this.communityCards = new ArrayList<>();
+
+        for (int i = 1; i <= numPlayers; i++) {
+            if (i == 1) {
+                players.add(new Player("Player " + i));
+            } else {
+                players.add(new AIPlayer("AI Player " + (i - 1)));
+            }
+        }
+    }
+
+     public void startGame() {
+        communityCards.clear();
+        for (Player player : players) {
+            player.resetHand();
+            player.addCardToHand(deck.dealCard());
+            player.addCardToHand(deck.dealCard());
+        }
+
+        displayChips();  // Display chip count at the beginning of the game
+        displayHands();
+    }
+
+    public void bettingRound() {
+        for (Player player : players) {
+            if (player instanceof AIPlayer) {
+                ((AIPlayer) player).makeDecision(communityCards);
+            } else {
+                if (!player.isFolded()) {
+                    int betAmount = getPlayerBet(player.getName(), player.getChips());
+                    playerBet(player, betAmount);
+                }
+            }
+        }
+    }
+
+
+    private int getPlayerBet(String playerName, int availableChips) {
+    System.out.println(playerName + ", you have " + availableChips + " chips. Enter bet amount (or '-' to check, '<' to fold):");
+
+    String betInput = scanner.nextLine();
+
+    if (betInput.equals("-")) {
+        return 0;  // Check (bet 0)
+    } else if (betInput.equals("<")) {
+        return -1;  // Fold (bet -1)
+    } else {
+        int betAmount;
+        try {
+            betAmount = Integer.parseInt(betInput);
+        } catch (NumberFormatException e) {
+            System.out.println("Invalid input. Enter a valid bet or '-' to check, '<' to fold:");
+            return getPlayerBet(playerName, availableChips);  // Recursively ask for input
+        }
+
+        if (betAmount >= 0 && betAmount <= availableChips) {
+            return betAmount;
+        } else {
+            System.out.println("Invalid bet amount. Enter a bet within your available chips (0 to " + availableChips + ") or '-' to check, '<' to fold:");
+            return getPlayerBet(playerName, availableChips);  // Recursively ask for input
+        }
+    }
+}
+
+
+
+
+    private void playerBet(Player player, int betAmount) {
+        if (betAmount == 0) {
+           System.out.println(player.getName() + " checks.");
+        } else if (betAmount == -1) {
+          System.out.println(player.getName() + " folds.");
+          player.fold();  // Set the folded flag
+        } else {
+          player.deductChips(betAmount);
+          player.setLastBet(betAmount);
+        }
+    }
+
+
+
+    public void dealFlop() {
+        for (int i = 0; i < 3; i++) {
+            communityCards.add(deck.dealCard());
+        }
+        displayCommunityCards();
+    }
+
+    public void dealTurn() {
+        communityCards.add(deck.dealCard());
+        displayCommunityCards();
+    }
+
+    public void dealRiver() {
+        communityCards.add(deck.dealCard());
+        displayCommunityCards();
+    }
+
+    private void displayCommunityCards() {
+        System.out.println("Community Cards: " + communityCards);
+    }
+
+    public void evaluateHands() {
+        Player winner = determineRoundWinner();
+        if (winner != null) {
+            distributeChips(winner, calculatePot());
+            System.out.println("Winner of the round: " + winner.getName());
+        } else {
+            System.out.println("Round ended in a tie.");
+        }
+        displayChips();
+    }
+
+    private Player determineRoundWinner() {
+        Player winner = null;
+        int maxStrength = 0;
+
+        for (Player player : players) {
+            int strength = HandEvaluator.evaluateHandStrength(player.getHand(), communityCards);
+            if (strength > maxStrength) {
+                maxStrength = strength;
+                winner = player;
+            } else if (strength == maxStrength) {
+                // Handle tie-breaking logic if needed
+            }
+        }
+
+        return winner;
+    }
+
+    private void distributeChips(Player winner, int pot) {
+        for (Player player : players) {
+            if (!player.isFolded() && player != winner) {
+                int betAmount = player.getLastBet();
+                if (betAmount > 0) {
+                    int chipsWon = Math.min(betAmount, pot);
+                    player.addChips(chipsWon);
+                    pot -= chipsWon;
+                }
+            }
+        }
+        winner.addChips(pot);  // Add the remaining pot to the winner
+    }
+
+
+
+    private void displayChips() {
+        for (Player player : players) {
+            System.out.println(player.getName() + "'s Chips: " + player.getChips());
+        }
+    }
+
+    private void displayHands() {
+        for (Player player : players) {
+            if (!(player instanceof AIPlayer)) {
+                System.out.println(player.getName() + "'s Hand: " + player.getHand());
+            } else {
+                System.out.println(player.getName() + "'s Hand: [Hidden]");
+            }
+        }
+    }
+
+    public static void main(String[] args) {
+        Game game = new Game(2);
+
+        while (true) {
+            game.startGame();
+            game.bettingRound();
+            game.dealFlop();
+            game.bettingRound();
+            game.dealTurn();
+            game.bettingRound();
+            game.dealRiver();
+            game.bettingRound();
+            game.evaluateHands();
+
+            System.out.println("Do you want to play another round? (yes/no)");
+            String response = game.scanner.nextLine().toLowerCase();
+            if (!response.equals("yes")) {
+                break;
+            }
+        }
+    }
+    private int calculatePot() {
+        int pot = 0;
+        for (Player player : players) {
+          pot += player.getLastBet();
+        }
+        return pot;
+    }
+
+}
+
+class Player {
+    private String name;
+    private ArrayList<Card> hand;
+    private boolean folded;
+    private int chips;
+    private int lastBet;
+
+    public Player(String name) {
+        this.name = name;
+        this.hand = new ArrayList<>();
+        this.chips = 1000;  // Initial chip count
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public int getChips() {
+        return chips;
+    }
+
+    public ArrayList<Card> getHand() {
+        return hand;
+    }
+
+    public void resetHand() {
+        hand.clear();
+    }
+
+    public void addCardToHand(Card card) {
+        hand.add(card);
+    }
+
+    public void deductChips(int amount) {
+        chips -= amount;
+    }
+    
+    public int getLastBet() {
+        return lastBet;
+    }
+
+    public void setLastBet(int lastBet) {
+        this.lastBet = lastBet;
+    }
+
+    public void addChips(int amount) {
+        chips += amount;
+    }
+
+    public boolean isFolded() {
+        return folded;
+    }
+
+    public void fold() {
+        folded = true;
+    }
+}
+
+class AIPlayer extends Player {
+    public AIPlayer(String name) {
+        super(name);
+    }
+
+    public void makeDecision(ArrayList<Card> communityCards) {
+        int handStrength = HandEvaluator.evaluateHandStrength(getHand(), communityCards);
+
+        if (handStrength > 5) {
+            int betAmount = (int) (Math.random() * 50) + 1;
+            playerBet(this, betAmount);
+        } else {
+            System.out.println(getName() + " checks or folds.");
+        }
+    }
+
+    private void playerBet(Player player, int betAmount) {
+        player.deductChips(betAmount);
+    }
+}
+
+class Deck {
+    private ArrayList<Card> cards;
+
+    public Deck() {
+        this.cards = new ArrayList<>();
+        initializeDeck();
+        shuffleDeck();
+    }
+
+    private void initializeDeck() {
+        String[] suits = {"Hearts", "Diamonds", "Clubs", "Spades"};
+        String[] ranks = {"2", "3", "4", "5", "6", "7", "8", "9", "10", "Jack", "Queen", "King", "Ace"};
+
+        for (String suit : suits) {
+            for (String rank : ranks) {
+                cards.add(new Card(suit, rank));
+            }
+        }
+    }
+
+    private void shuffleDeck() {
+        Collections.shuffle(cards);
+    }
+
+    public Card dealCard() {
+        if (cards.isEmpty()) {
+            System.out.println("No more cards in the deck!");
+            return null;
+        }
+        return cards.remove(0);
+    }
+}
+
+class Card {
+    private String suit;
+    private String rank;
+
+    public Card(String suit, String rank) {
+        this.suit = suit;
+        this.rank = rank;
+    }
+
+    public String getSuit() {
+        return suit;
+    }
+
+    public String getRank() {
+        return rank;
+    }
+
+    @Override
+    public String toString() {
+        return rank + " of " + suit;
+    }
+}
+
+class HandEvaluator {
+    public static void evaluate(String playerName, ArrayList<Card> hand) {
+        System.out.println(playerName + "'s hand: " + hand);
+    }
+
+    public static int evaluateHandStrength(ArrayList<Card> hand, ArrayList<Card> communityCards) {
+        ArrayList<String> allCards = new ArrayList<>();
+        for (Card card : hand) {
+            allCards.add(card.getRank() + card.getSuit().charAt(0));
+        }
+        for (Card card : communityCards) {
+            allCards.add(card.getRank() + card.getSuit().charAt(0));
+        }
+
+        Collections.sort(allCards);
+
+        if (isRoyalFlush(allCards)) {
+            return 10;
+        } else if (isStraightFlush(allCards)) {
+            return 9;
+        } else if (isFourOfAKind(allCards)) {
+            return 8;
+        } else if (isFullHouse(allCards)) {
+            return 7;
+        } else if (isFlush(allCards)) {
+            return 6;
+        } else if (isStraight(allCards)) {
+            return 5;
+        } else if (isThreeOfAKind(allCards)) {
+            return 4;
+        } else if (isTwoPair(allCards)) {
+            return 3;
+        } else if (isOnePair(allCards)) {
+            return 2;
+        } else {
+            return 1;
+        }
+    }
+
+    private static boolean isRoyalFlush(ArrayList<String> cards) {
+        return cards.contains("10H") && cards.contains("JH") && cards.contains("QH") &&
+                cards.contains("KH") && cards.contains("AH") && isFlush(cards);
+    }
+
+    private static boolean isStraightFlush(ArrayList<String> cards) {
+        return isStraight(cards) && isFlush(cards);
+    }
+
+    private static boolean isFourOfAKind(ArrayList<String> cards) {
+        return hasNOfAKind(cards, 4);
+    }
+
+    private static boolean isFullHouse(ArrayList<String> cards) {
+        return hasNOfAKind(cards, 3) && hasNOfAKind(cards, 2);
+    }
+
+    private static boolean isFlush(ArrayList<String> cards) {
+    int hearts = 0, diamonds = 0, clubs = 0, spades = 0;
+
+    for (String card : cards) {
+        if (card.length() < 3) {
+            // Ensure the card has enough characters
+            continue;
+        }
+
+        char suit = card.charAt(2);
+        switch (suit) {
+            case 'H':
+                hearts++;
+                break;
+            case 'D':
+                diamonds++;
+                break;
+            case 'C':
+                clubs++;
+                break;
+            case 'S':
+                spades++;
+                break;
+        }
+    }
+
+    return hearts >= 5 || diamonds >= 5 || clubs >= 5 || spades >= 5;
+}
+
+
+    private static boolean isStraight(ArrayList<String> cards) {
+        int consecutive = 1;
+        for (int i = 1; i < cards.size(); i++) {
+            int currentRank = getRankValue(cards.get(i).charAt(0));
+            int previousRank = getRankValue(cards.get(i - 1).charAt(0));
+
+            if (currentRank == previousRank + 1) {
+                consecutive++;
+                if (consecutive == 5) {
+                    return true;
+                }
+            } else if (currentRank != previousRank) {
+                consecutive = 1;
+            }
+        }
+
+        return false;
+    }
+
+    private static boolean isThreeOfAKind(ArrayList<String> cards) {
+        return hasNOfAKind(cards, 3);
+    }
+
+    private static boolean isTwoPair(ArrayList<String> cards) {
+        int pairs = 0;
+        for (int i = 0; i < cards.size() - 1; i++) {
+            if (cards.get(i).charAt(0) == cards.get(i + 1).charAt(0)) {
+                pairs++;
+                i++;
+            }
+        }
+        return pairs >= 2;
+    }
+
+    private static boolean isOnePair(ArrayList<String> cards) {
+        return hasNOfAKind(cards, 2);
+    }
+
+    private static boolean hasNOfAKind(ArrayList<String> cards, int n) {
+        int count = 1;
+        for (int i = 1; i < cards.size(); i++) {
+            if (cards.get(i).charAt(0) == cards.get(i - 1).charAt(0)) {
+                count++;
+                if (count == n) {
+                    return true;
+                }
+            } else {
+                count = 1;
+            }
+        }
+
+        return false;
+    }
+
+    private static int getRankValue(char rank) {
+        if (Character.isDigit(rank)) {
+            return rank - '0';
+        } else {
+            switch (rank) {
+                case 'T':
+                    return 10;
+                case 'J':
+                    return 11;
+                case 'Q':
+                    return 12;
+                case 'K':
+                    return 13;
+                case 'A':
+                    return 14;
+                default:
+                    return 0;
+            }
+        }
+    }
+}
