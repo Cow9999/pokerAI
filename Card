@@ -19,12 +19,14 @@ public class Card {
             }
         }
     
-        @Override
         public String toString() {
             return suit + rank;
         }
+        public String getSuit(){
+            return this.suit;
+        }
         public Integer getRank() {
           return this.rank;
-      }
+        }
   
     }
