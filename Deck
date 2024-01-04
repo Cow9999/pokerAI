@@ -20,8 +20,7 @@ public class Deck {
         // Shuffles the deck
         public void shuffle() {
             Collections.shuffle(this.cards);
-        }
-
+        }        
         // Deals a hand of specified number of cards
         public List<Card> dealHand(int numberOfCards) {
             List<Card> hand = new ArrayList<>();
