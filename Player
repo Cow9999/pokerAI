@@ -8,14 +8,19 @@ public class Player {
         public static final int Player = 0;
         Scanner scanner = new Scanner(System.in);
         List<Card> hand = new ArrayList<>();
-        public int chips;
-        public int pot;
+        public boolean[] folds = new boolean[11];
         public boolean folded;
+        public int chips;
+        public static int pot;
 
         // Player constructor
-        public Player(int initialChips) {
+        public Player(int initialChips, boolean folded) {
             this.chips = initialChips;
+            this.folded = false;
             this.hand = new ArrayList<>();
+        }
+        public static void setPot(int newPot){
+            pot=newPot;
         }
 
         // Sets the player's hand
@@ -50,6 +55,12 @@ public class Player {
         public void tie(){
             chips= chips + (pot/2);
         }
+        public void setFold(int numPlayers){
+            for (int i = 0; i<(numPlayers+1); i++){
+                folds[i] = false;
+              }
+        }
+    
         public int getBetAmount(Scanner scanner) {
         int amount;
 
@@ -102,6 +113,9 @@ public class Player {
                   System.out.println("You folded."); 
                   folded = true;
                   break;
+                case "R":
+                int raiseAmount = getBetAmount(scanner); 
+                bet(raiseAmount);
                   
                 default:
                   System.out.println("Invalid action. Checking.");
@@ -112,13 +126,14 @@ public class Player {
             System.out.println("Action ignored due to previous fold.");
           }
     }
-        private static List<Player> checkWin(List<Player> players, int pot, List<Card> communityCards) {
+        public static List<Player> checkWin(List<Player> players, List<Card> communityCards) {
             double highestRank = 0;
+            int totalPot = pot;
             List<Player> winners = new ArrayList<>();
-    
+        
             // Evaluate hands and find the highest hand rank
             for (Player player : players) {
-                if (!player.folded) {
+                if (!player.getFold(i)) {
                     double handRank = PokerHandEvaluator.evaluateHand(player.getHand(), communityCards);
                     if (handRank > highestRank) {
                         highestRank = handRank;
@@ -129,9 +144,9 @@ public class Player {
                     }
                 }
             }
-    
+        
             // Calculate winnings and update each winner's chips
-            int winnings = pot / winners.size();
+             int winnings = totalPot / winners.size();
             for (Player winner : winners) {
                 winner.chips += winnings;
                 System.out.println("Player wins " + winnings + " chips!");
@@ -143,8 +158,5 @@ public class Player {
             }
     
             return winners;
-        }
-        public int getPot(){
-            return pot;
         }
     }
