@@ -1,282 +1,151 @@
-import java.util.*;
-public  class PokerHandEvaluator {
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Scanner;
 
-    public static int evaluateHand(List<Card> hand, List<Card> deal) {
-  
-      if (isRoyalFlush(hand, deal)) return 9;
-  
-      else if (isStraightFlush(hand, deal)) return 8;
-  
-      else if (isFourOfAKind(hand, deal)) return 7; 
-  
-      else if (isFullHouse(hand, deal)) return 6;
-  
-      else if (isFlush(hand, deal)) return 5;
-  
-      else if (isStraight(hand, deal)) return 4; 
-  
-      else if (isThreeOfAKind(hand, deal)) return 3;
-  
-      else if (isTwoPair(hand, deal)) return 2;
-  
-      else if (isOnePair(hand, deal)) return 1;
-      else return 0; // High card
-  
-    }
-    public static String getHandName(List<Card> hand, List<Card> deal) {
-      if (isRoyalFlush(hand, deal)) return "Royal Flush";
-      else if (isStraightFlush(hand, deal)) return "Straight Flush";
-      else if (isFourOfAKind(hand, deal)) return "Four of a Kind";
-      else if (isFullHouse(hand, deal)) return "Full House";
-      else if (isFlush(hand, deal)) return "Flush";
-      else if (isStraight(hand, deal)) return "Straight";
-      else if (isThreeOfAKind(hand, deal)) return "Three of a Kind";
-      else if (isTwoPair(hand, deal)) return "Two Pair";
-      else if (isOnePair(hand, deal)) return "One Pair";
-      else return "High Card";
-  }
-    
-  
-      public static boolean isOnePair(List<Card> playerHand, List<Card> communityCards) {
-        List<Card> combinedHand = new ArrayList<>(playerHand);
-        combinedHand.addAll(communityCards);
 
-        Map<Integer, Integer> rankCounts = new HashMap<>();
-        for (Card card : combinedHand) {
-            rankCounts.put(card.getRank(), rankCounts.getOrDefault(card.getRank(), 0) + 1);
+public class Player {
+        public static final int List = 0;
+        public static final int Player = 0;
+        Scanner scanner = new Scanner(System.in);
+        List<Card> hand = new ArrayList<>();
+        public int chips;
+        public static int pot;
+        public boolean folded;
+
+        // Player constructor
+        public Player(int initialChips) {
+            this.chips = initialChips;
+            this.hand = new ArrayList<>();
+        }
+        public static void setPot(int newPot){
+            pot=newPot;
         }
 
-        boolean foundOnePair = false;
-        for (int count : rankCounts.values()) {
-            if (count == 2) {
-                if (foundOnePair) {
-                    // Found a second pair, so it's not "one pair"
-                    return false;
-                }
-                foundOnePair = true;
-            } else if (count > 2) {
-                // More than two of the same rank, so it's not "one pair"
-                return false;
+        // Sets the player's hand
+        public void setHand(List<Card> hand) {
+            this.hand = hand;
+        }
+
+        // Gets the player's hand
+        public List<Card> getHand() {
+            return hand;
+        }
+
+        // Gets the player's chip count
+        public int getChips() {
+            return chips;
+        }
+
+        // Player bets a certain amount of chips
+        public void bet(int amount) {
+            if (amount > chips) {
+                amount = chips;
             }
+            chips -= amount;
+            pot += amount;
         }
 
-        return foundOnePair;
-      }
-  
-    public static boolean isTwoPair(List<Card> playerHand, List<Card> communityCards) {
-      List<Card> combinedHand = new ArrayList<>(playerHand);
-      combinedHand.addAll(communityCards);
-  
-      Map<Integer, Integer> rankCounts = new HashMap<>();
-      for (Card card : combinedHand) {
-          rankCounts.put(card.getRank(), rankCounts.getOrDefault(card.getRank(), 0) + 1);
-      }
-  
-      int pairsFound = 0;
-      for (int count : rankCounts.values()) {
-          if (count == 2) {
-              pairsFound++;
-          }
-      }
-  
-      return pairsFound == 2;
-  }
-  
-  
-  
-  public static boolean isThreeOfAKind(List<Card> playerHand, List<Card> communityCards) {
-    List<Card> combinedHand = new ArrayList<>(playerHand);
-    combinedHand.addAll(communityCards);
+        // Player wins a certain amount of chips
+        public void win() {
 
-    Map<Integer, Integer> rankCounts = new HashMap<>();
-    for (Card card : combinedHand) {
-        rankCounts.put(card.getRank(), rankCounts.getOrDefault(card.getRank(), 0) + 1);
-    }
-
-    for (int count : rankCounts.values()) {
-        if (count == 3) {
-            // Found exactly three cards of the same rank
-            return true;
+              chips += pot;
         }
-    }
-
-    return false;
-}
-
-  
-    public static boolean isStraight(List<Card> playerHand, List<Card> communityCards) {
-      List<Card> combinedHand = new ArrayList<>(playerHand);
-      combinedHand.addAll(communityCards);
-  
-      // Use a TreeSet to sort and eliminate duplicates
-      Set<Integer> sortedRanks = new TreeSet<>();
-      for (Card card : combinedHand) {
-          // Add rank, converting Ace (rank 14) to 1 for low straight (A-2-3-4-5)
-          int rank = card.getRank() == 14 ? 1 : card.getRank();
-          sortedRanks.add(rank);
-      }
-  
-      // Check for straight
-      List<Integer> ranks = new ArrayList<>(sortedRanks);
-      for (int i = 0; i < ranks.size() - 4; i++) {
-          if (ranks.get(i) + 4 == ranks.get(i + 4)) {
-              return true;
-          }
-      }
-  
-      // Check for high straight with Ace
-      if (sortedRanks.contains(14) && sortedRanks.contains(10) && sortedRanks.contains(11)
-          && sortedRanks.contains(12) && sortedRanks.contains(13)) {
-          return true;
-      }
-  
-      return false;
-  }
-
-    public static boolean isFlush(List<Card> playerHand, List<Card> communityCards) {
-      List<Card> combinedHand = new ArrayList<>(playerHand);
-      combinedHand.addAll(communityCards);
-  
-      // Count occurrences of each suit
-      Map<String, Integer> suitCounts = new HashMap<>();
-      for (Card card : combinedHand) {
-          suitCounts.put(card.getSuit(), suitCounts.getOrDefault(card.getSuit(), 0) + 1);
-      }
-  
-      // Check if any suit count is 5 or more
-      for (int count : suitCounts.values()) {
-          if (count >= 5) {
-              return true;
-          }
-      }
-  
-      return false;
-  }
-  
-  public static boolean isFullHouse(List<Card> playerHand, List<Card> communityCards) {
-    List<Card> combinedHand = new ArrayList<>(playerHand);
-    combinedHand.addAll(communityCards);
-
-    Map<Integer, Integer> rankCounts = new HashMap<>();
-    for (Card card : combinedHand) {
-        rankCounts.put(card.getRank(), rankCounts.getOrDefault(card.getRank(), 0) + 1);
-    }
-
-    boolean hasThreeOfAKind = false;
-    boolean hasAPair = false;
-
-    for (int count : rankCounts.values()) {
-        if (count == 3) {
-            hasThreeOfAKind = true;
-        } else if (count == 2) {
-            hasAPair = true;
+        public void tie(){
+            chips= chips + (pot/2);
         }
-    }
+        public int getBetAmount(Scanner scanner) {
+        int amount;
 
-    return hasThreeOfAKind && hasAPair;
-}
+            while (true) {
+                System.out.println("Enter your bet amount (You have " + this.getChips() + " chips):");
 
-  
-    public static boolean isFourOfAKind(List<Card> playerHand, List<Card> communityCards) {
-      List<Card> combinedHand = new ArrayList<>(playerHand);
-      combinedHand.addAll(communityCards);
-      
-      Map<Integer, Integer> rankCounts = new HashMap<>();
-      
-      // Count the occurrences of each rank
-      for (Card card : combinedHand) {
-          rankCounts.put(card.getRank(), rankCounts.getOrDefault(card.getRank(), 0) + 1);
-      }
-      
-      // Check if any rank count is exactly 4
-      for (int count : rankCounts.values()) {
-          if (count == 4) {
-              return true;
-          }
-      }
-      
-      return false;
-  }
-  
-    private static boolean isStraightFlush(List<Card> playerHand, List<Card> communityCards) {
-      List<Card> sortedHand = sortHand.sortHandBySuitAndRank(playerHand, communityCards);
-  
-      for (int i = 0; i < sortedHand.size() - 4; i++) {
-          if (sortedHand.get(i).getSuit().equals(sortedHand.get(i + 4).getSuit()) &&
-              sortedHand.get(i).getRank() + 4 == sortedHand.get(i + 4).getRank()) {
-              return true;
-          }
-      }
-      return false;
-  }
-  
-    private static boolean isRoyalFlush(List<Card> hand, List<Card> deal) {
-      List<Card> combinedHand = sortHand.sortHandForRoyalFlush(hand, deal);
-
-    // Check for Royal Flush
-    if (combinedHand.size() < 5) {
-        return false; // Not enough cards for a royal flush
-    }
-
-    for (int i = 0; i <= combinedHand.size() - 5; i++) {
-        // Check if five consecutive cards form a royal flush
-        if (combinedHand.get(i).getRank() == 10 &&
-            combinedHand.get(i + 1).getRank() == 11 && // Jack
-            combinedHand.get(i + 2).getRank() == 12 && // Queen
-            combinedHand.get(i + 3).getRank() == 13 && // King
-            combinedHand.get(i + 4).getRank() == 14 && // Ace
-            combinedHand.get(i).getSuit().equals(combinedHand.get(i + 1).getSuit()) &&
-            combinedHand.get(i).getSuit().equals(combinedHand.get(i + 2).getSuit()) &&
-            combinedHand.get(i).getSuit().equals(combinedHand.get(i + 3).getSuit()) &&
-            combinedHand.get(i).getSuit().equals(combinedHand.get(i + 4).getSuit())) {
-            return true;
-        }
-    }
-    return false;
-  
-    }
-    
-
-    public class sortHand{
-      public static List<Card> sortHandForRoyalFlush(List<Card> playerHand, List<Card> communityCards) {
-          List<Card> combinedHand = new ArrayList<>(playerHand);
-          combinedHand.addAll(communityCards);
-  
-          Collections.sort(combinedHand, new Comparator<Card>() {
-              @Override
-              public int compare(Card c1, Card c2) {
-                  // First, sort by suit
-                  int suitCompare = c1.getSuit().compareTo(c2.getSuit());
-                  if (suitCompare != 0) {
-                      return suitCompare;
-                  }
-                  // If suits are the same, then sort by rank
-                  return c1.getRank().compareTo(c2.getRank());
-              }
-          });
-  
-          return combinedHand;
-      }
-      public static List<Card> sortHandBySuitAndRank(List<Card> playerHand, List<Card> communityCards) {
-        List<Card> combinedHand = new ArrayList<>(playerHand);
-        combinedHand.addAll(communityCards);
-    
-        Collections.sort(combinedHand, new Comparator<Card>() {
-            @Override
-            public int compare(Card c1, Card c2) {
-                // First, sort by suit
-                int suitCompare = c1.getSuit().compareTo(c2.getSuit());
-                if (suitCompare != 0) {
-                    return suitCompare;
+                while (!scanner.hasNextInt()) {
+                    System.out.println("Invalid input. Please enter a valid number.");
+                    scanner.next(); // Consume the invalid input
                 }
-                // If suits are the same, then sort by rank
-                return c1.getRank().compareTo(c2.getRank());
+
+                amount = scanner.nextInt();
+                scanner.nextLine(); // Consume newline left-over
+
+                if (amount <= this.getChips() && amount > 0) {
+                    break; // Valid amount entered
+                } else {
+                    System.out.println("Invalid amount. You can bet up to " + this.getChips() + " chips.");
+                }
             }
-        });
+
+            return amount;
+        }
+        public void bettingRound(Scanner scanner, List<Card> deal) {
+            // Display player's hand and chips
+            
+            System.out.println("Your Hand: " + this.getHand());
+            System.out.println("Your Chips: " + this.getChips());
+            System.out.println("The Pot is: "+pot);
+          
+            // Ask if player wants to bet
+              System.out.println("Enter your action (B for bet, C for check, F for fold):");  
+              String action = scanner.nextLine();
+            if (folded == false){
+              switch(action.toUpperCase()) {
+          
+                case "B":  
+                  // Bet logic
+                  int betAmount = getBetAmount(scanner); 
+                  bet(betAmount);
+                  break;
+                  
+                case "C":
+                  // Check logic
+                  System.out.println("You checked.");
+                  break;
+                  
+                case "F":
+                  // Fold logic
+                  System.out.println("You folded."); 
+                  folded = true;
+                  break;
+                  
+                default:
+                  System.out.println("Invalid action. Checking.");
+                  break;  
+            }
+          }
+          else if(folded == true){
+            System.out.println("Action ignored due to previous fold.");
+          }
+    }
+    public static List<Player> checkWin(List<Player> players, List<Card> communityCards) {
+            double highestRank = 0;
+            int pots = pot;
+            List<Player> winners = new ArrayList<>();
     
-        return combinedHand;
-      }
-  
-  }  
-  }
-  
+            // Evaluate hands and find the highest hand rank
+            for (Player player : players) {
+                if (!player.folded) {
+                    double handRank = PokerHandEvaluator.evaluateHand(player.getHand(), communityCards);
+                    if (handRank > highestRank) {
+                        highestRank = handRank;
+                        winners.clear();
+                        winners.add(player);
+                    } else if (handRank == highestRank) {
+                        winners.add(player);
+                    }
+                }
+            }
+    
+            // Calculate winnings and update each winner's chips
+            int winnings = pots / winners.size();
+            for (Player winner : winners) {
+                winner.chips += winnings;
+                System.out.println("Player wins " + winnings + " chips!");
+            }
+    
+            // Display each player's chip count
+            for (int i = 0; i < players.size(); i++) {
+                System.out.println("Player " + (i + 1) + " has " + players.get(i).chips + " chips.");
+            }
+    
+            return winners;
+        }
+    }
