@@ -8,14 +8,14 @@ public class PockerHandDealer {
         deck.shuffle();
         System.out.println("");
         List<Player> players = new ArrayList<>();
-        Player player1 = new Player(1000);
+        Player player1 = new Player(1000, false);
         player1.setHand(deck.dealHand(2));
         player1.bet(100);
         System.out.println("Player" + 1 + "'s Chips: " + player1.getChips());
         System.out.println("Player" + 1 + "'s Hand: " + player1.getHand());
         players.add(player1);
         for(int i = 2; i<= numPlayers; i++ ){
-          Player player = new Player(1000);
+          Player player = new Player(1000, false);
           player.setHand(deck.dealHand(2));
           players.add(player);
           player.bet(100);
@@ -39,15 +39,18 @@ public class PockerHandDealer {
         System.out.println("What is your action");
         
         //First action betting bling
+        if(Player.getFold(1) == false){
         player1.bettingRound(scanner, deal);
-        
+        }
         //The Flop
         System.out.println("The deal is " + deal);
 
         System.out.println("What is your action");
        
         //The second action based on the flop
+        if(Player.getFold(1) == false){
         player1.bettingRound(scanner, deal);
+        }
 
         //adds the turn card to the deal
         deal.addAll(turnCards);
@@ -59,21 +62,25 @@ public class PockerHandDealer {
 
         deal.addAll(riverCards);
 
+        if(Player.getFold(1) == false){
         player1.bettingRound(scanner, deal);
+        }
 
         System.out.println("The final deal is " + deal);
 
         System.out.println("What is your action");
 
+        if(Player.getFold(1) == false){
         player1.bettingRound(scanner, deal);
+        }
         List<Double> handranks = new ArrayList<>();
-          for (int i = 0; i < players.size(); i++) {
+        for (int i = 0; i < players.size(); i++) {
           Player player = players.get(i);
-          if (!player.folded) {
+          if (!Player.getFold(i)) {
               double handRank = PokerHandEvaluator.evaluateHand(player.getHand(), deal);
               String handType = PokerHandEvaluator.getHandName(player.getHand(), deal);
-              System.out.println("Player " + (i + 1) + "'s Hand: " + player.getHand() + " - " + handType);
               handranks.add(handRank);
+              System.out.println("Player " + (i + 1) + "'s Hand: " + player.getHand() + " - " + handType);
           } else {
               System.out.println("Player " + (i + 1) + " folded.");
           }
