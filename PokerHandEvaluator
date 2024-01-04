@@ -236,7 +236,11 @@ public  class PokerHandEvaluator {
   
     }
     
-
+    public class iftie{
+        private static int highCardTieBreak(Player player1, Player player2) {
+            return 0;
+        }
+    }
     public class sortHand{
       public static List<Card> sortHandForRoyalFlush(List<Card> playerHand, List<Card> communityCards) {
           List<Card> combinedHand = new ArrayList<>(playerHand);
