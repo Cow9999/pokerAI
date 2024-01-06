@@ -22,23 +22,24 @@ public class PockerHandDealer {
         List<Card> communityCards = new ArrayList<>();
 
         // Burn a card then deal the flop
-        burnCards.add(deck.dealCard()); // Assuming dealCard() method deals a single card
-        communityCards.addAll(deck.dealHand(3));
-        burnCards.add(deck.dealCard()); // Burn another card before the turn
+        burnCards.add(deck.dealCard()); // Burn before the flop
+        communityCards.addAll(deck.dealHand(3)); // Flop
+        burnCards.add(deck.dealCard()); // Burn before the turn
         communityCards.addAll(deck.dealHand(1)); // Turn
-        burnCards.add(deck.dealCard()); // Burn another card before the river
+        burnCards.add(deck.dealCard()); // Burn before the river
         communityCards.addAll(deck.dealHand(1)); // River
+
 
         System.out.println("Burn Cards: " + burnCards);
         System.out.println("Community Cards: " + communityCards);
 
         // Betting rounds for each player
-        for (int round = 1; round <= 4; round++) {
-            for (Player player : players) {
-                if (!player.isFolded()) {
-                    System.out.println("Player " + (players.indexOf(player) + 1) + ", what is your action?");
-                    player.bettingRound(scanner, communityCards);
-                }
+        for (int i = 0; i < players.size(); i++) {
+          Player player = players.get(i);
+          if (!player.getFold(i)) {
+            System.out.println("Player " + (players.indexOf(player) + 1) + ", what is your action?");
+            player.bettingRound(scanner, communityCards);
+          }
             }
             // Deal additional community cards after first round
             if (round == 1) {
@@ -56,7 +57,13 @@ public class PockerHandDealer {
         //if (handType1.equals(handType2) && handRank1 == handRank2) {
           //System.out.println(SamHandEval.determineHigherHand(player1.getHand(), player2.getHand()));
       //}
-      
+    for (int i = 0; i < players.size(); i++) {
+        Player player = players.get(i);
+        if (player.getFold(i)) {
+            System.out.println("Player " + (i + 1) + " folded.");
+        }
+    }
+    
       private static void replay(Scanner scanner, int numPlayers) {
         while (true) {
             System.out.println("Do you want to play another round? (yes/no)");
