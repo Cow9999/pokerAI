@@ -1,0 +1,616 @@
+import java.util.*;
+import java.util.function.Function;
+import java.util.ArrayList;
+
+
+public class iftie {
+
+    public static void resolveTie(List<Player> players, List<Card> communityCards) {
+        int handRank = PokerHandEvaluator.evaluateHand(players.get(0).getHand(), communityCards);
+
+        Map<Integer, List<Player>> pairGroups = new HashMap<>();
+        Map<Integer, List<Player>> twoPairGroups = new HashMap<>();
+        Map<Integer, List<Player>> threeOfAKindGroups = new HashMap<>();
+        Map<Integer, List<Player>> fourOfAKindGroups = new HashMap<>();
+        Map<Integer, List<Player>> highCardGroups = new HashMap<>();
+        Map<Integer, List<Player>> straightGroups = new HashMap<>();
+
+        switch (handRank) {
+            case 1: // One Pair
+                resolveOnePairTie(players, communityCards);
+                break;
+            case 2: // Two Pair
+                resolveTwoPairTie(players, communityCards);
+                break;
+            case 3: // Three of a Kind
+                resolveThreeOfAKindTie(players, communityCards);
+                break;
+            case 7: // Four of a Kind
+                resolveFourOfAKindTie(players, communityCards);
+                break;
+            case 4: // Straight
+                resolveStraightTie(players, communityCards);
+                break;
+            case 5: // Flush
+                resolveFlushTie(players, communityCards);
+                break;
+            case 6: // Full House
+                resolveFullHouseTie(players, communityCards);
+                break;
+            default:
+                // Other hand ranks have high card tiebreakers
+                resolveHighCardTie(players, communityCards);
+                break;
+        }
+    }
+
+    private static void resolveFullHouseTie(List<Player> players, List<Card> communityCards) {
+        int winningThreeOfAKindRank = findWinningThreeOfAKindRank(players, communityCards);
+        int winningPairRank = findWinningPairRank(players, communityCards);
+
+        List<Player> winningPlayers = new ArrayList<>();
+
+        for (Player player : players) {
+            if (hasThreeOfAKind(player.getHand(), communityCards, winningThreeOfAKindRank) &&
+                    hasPair(player.getHand(), communityCards, winningPairRank)) {
+                winningPlayers.add(player);
+            }
+        }
+
+        // Now 'winningPlayers' contains the players with the winning Full House
+
+        // Implement further tie-breaking logic if needed
+    }
+
+    private static boolean hasThreeOfAKind(List<Card> hand, List<Card> communityCards, int rank) {
+        Map<Integer, Integer> rankCounts = getRankCounts(hand, communityCards);
+        return rankCounts.getOrDefault(rank, 0) == 3;
+    }
+
+    private static boolean hasPair(List<Card> hand, List<Card> communityCards, int rank) {
+        Map<Integer, Integer> rankCounts = getRankCounts(hand, communityCards);
+        return rankCounts.getOrDefault(rank, 0) == 2;
+    }
+
+    private static Map<Integer, Integer> getRankCounts(List<Card> hand, List<Card> communityCards) {
+        Map<Integer, Integer> rankCounts = new HashMap<>();
+
+        for (Card card : hand) {
+            rankCounts.put(card.getRank(), rankCounts.getOrDefault(card.getRank(), 0) + 1);
+        }
+
+        for (Card card : communityCards) {
+            rankCounts.put(card.getRank(), rankCounts.getOrDefault(card.getRank(), 0) + 1);
+        }
+
+        return rankCounts;
+    }
+
+
+    private static List<Player> findPlayersWithFullHouse(List<Player> players, List<Card> communityCards, int winningFullHouseRank) {
+        List<Player> result = new ArrayList<>();
+
+        for (Player player : players) {
+            if (hasThreeOfAKind(player.getHand(), communityCards, winningFullHouseRank) &&
+                    hasPair(player.getHand(), communityCards, winningFullHouseRank)) {
+                result.add(player);
+            }
+        }
+
+        return result;
+    }
+
+    private static void resolveFlushTie(List<Player> players, List<Card> communityCards) {
+        int winningFlushCardRank = findFlushCard(players, communityCards);
+        List<Player> winningPlayers = findPlayersWithFlushCard(players, communityCards, winningFlushCardRank);
+
+        // Implement further tie-breaking logic if needed
+    }
+
+
+    private static void resolveOnePairTie(List<Player> players, List<Card> communityCards) {
+        Map<Integer, List<Player>> pairGroups = new HashMap<>();
+
+        for (Player player : players) {
+            final int pairRank = findPairRank(player.getHand(), communityCards);
+            pairGroups.computeIfAbsent(pairRank, new Function<Integer, List<Player>>)() {
+                @Override
+                public List<Player> apply(Integer k) {
+                    List<Player> playersList = new ArrayList<>();
+                    playersList.add(player);
+                    return playersList;
+                }
+            };
+        }
+    }
+            int maxPairRank = -1;
+
+            for (Player player : players) {
+                int pairRank = findPairRank(player.getHand(), communityCards);
+                maxPairRank = Math.max(maxPairRank, pairRank);
+            }
+
+            return maxPairRank;
+        }
+
+
+
+    private static int findPairRank(List<Card> hand, List<Card> communityCards) {
+    Map<Integer, Integer> rankCounts = new HashMap<>();
+
+    for (Card card : hand) {
+        rankCounts.put(card.getRank(), rankCounts.getOrDefault(card.getRank(), 0) + 1);
+    }
+
+    for (Card card : communityCards) {
+        rankCounts.put(card.getRank(), rankCounts.getOrDefault(card.getRank(), 0) + 1);
+    }
+
+    for (int rank : rankCounts.keySet()) {
+        if (rankCounts.get(rank) == 2) {
+            return rank;
+        }
+    }
+
+    return -1; // No pair found
+}
+
+    private static int findWinningPairRank(Map<Integer, List<Player>> pairGroups) {
+        int winningPairRank = -1;
+
+        for (int pairRank : pairGroups.keySet()) {
+            if (winningPairRank == -1 || pairRank > winningPairRank) {
+                winningPairRank = pairRank;
+            }
+        }
+
+        return winningPairRank;
+    }
+
+    private static void resolveTwoPairTie(List<Player> players, List<Card> communityCards) {
+    Map<Integer, List<Player>> twoPairGroups = new HashMap<>();
+
+    for (Player player : players) {
+        List<Integer> twoPairRanks = findTwoPairRanks(player.getHand(), communityCards);
+        if (!twoPairRanks.isEmpty()) {
+            twoPairGroups.computeIfAbsent(twoPairRanks.hashCode(), new Function<Integer, List<Player>>() {
+                @Override
+                public List<Player> apply(Integer k) {
+                    List<Player> playersList = new ArrayList<>();
+                    playersList.add(player);
+                    return playersList;
+                }
+            }).add(player);
+        }
+    }
+
+    int winningTwoPairHashCode = findWinningTwoPairHashCode(twoPairGroups);
+    List<Player> winningPlayers = twoPairGroups.get(winningTwoPairHashCode);
+
+    // Implement further tie-breaking logic if needed
+}
+
+    private static List<Integer> findTwoPairRanks(List<Card> hand, List<Card> communityCards) {
+        Map<Integer, Integer> rankCounts = new HashMap<>();
+
+        for (Card card : hand) {
+            rankCounts.put(card.getRank(), rankCounts.getOrDefault(card.getRank(), 0) + 1);
+        }
+
+        for (Card card : communityCards) {
+            rankCounts.put(card.getRank(), rankCounts.getOrDefault(card.getRank(), 0) + 1);
+        }
+
+        List<Integer> twoPairRanks = new ArrayList<>();
+
+        for (int rank : rankCounts.keySet()) {
+            if (rankCounts.get(rank) == 2) {
+                twoPairRanks.add(rank);
+            }
+        }
+
+        return twoPairRanks;
+    }
+
+    private static int findWinningTwoPairHashCode(Map<Integer, List<Player>> twoPairGroups) {
+        int winningTwoPairHashCode = -1;
+
+        for (int twoPairHashCode : twoPairGroups.keySet()) {
+            if (winningTwoPairHashCode == -1 || twoPairHashCode > winningTwoPairHashCode) {
+                winningTwoPairHashCode = twoPairHashCode;
+            }
+        }
+
+        return winningTwoPairHashCode;
+    }
+
+    private static void resolveThreeOfAKindTie(List<Player> players, List<Card> communityCards) {
+    Map<Integer, List<Player>> threeOfAKindGroups = new HashMap<>();
+
+    for (Player player : players) {
+        int threeOfAKindRank = findThreeOfAKindRank(player.getHand(), communityCards);
+        threeOfAKindGroups.computeIfAbsent(threeOfAKindRank, new Function<Integer, List<Player>>() {
+            @Override
+            public List<Player> apply(Integer k) {
+                List<Player> playersList = new ArrayList<>();
+                playersList.add(player);
+                return playersList;
+            }
+        }).add(player);
+    }
+
+    private static int findWinningThreeOfAKindRank(List<Player> players, List<Card> communityCards) {
+        int maxThreeOfAKindRank = -1;
+
+        for (Player player : players) {
+            int threeOfAKindRank = findThreeOfAKindRank(player.getHand(), communityCards);
+            maxThreeOfAKindRank = Math.max(maxThreeOfAKindRank, threeOfAKindRank);
+    }
+
+        return maxThreeOfAKindRank;
+    }
+
+    private static int findThreeOfAKindRank(List<Card> hand, List<Card> communityCards) {
+        Map<Integer, Integer> rankCounts = new HashMap<>();
+
+        for (Card card : hand) {
+            rankCounts.put(card.getRank(), rankCounts.getOrDefault(card.getRank(), 0) + 1);
+        }
+
+        for (Card card : communityCards) {
+            rankCounts.put(card.getRank(), rankCounts.getOrDefault(card.getRank(), 0) + 1);
+        }
+
+        for (int rank : rankCounts.keySet()) {
+            if (rankCounts.get(rank) == 3) {
+                return rank;
+            }
+        }
+
+        return -1; // No three of a kind found
+    }
+
+    private static int findWinningThreeOfAKindRank(Map<Integer, List<Player>> threeOfAKindGroups) {
+        int winningThreeOfAKindRank = -1;
+
+        for (int threeOfAKindRank : threeOfAKindGroups.keySet()) {
+            if (winningThreeOfAKindRank == -1 || threeOfAKindRank > winningThreeOfAKindRank) {
+                winningThreeOfAKindRank = threeOfAKindRank;
+            }
+        }
+
+        return winningThreeOfAKindRank;
+    }
+
+    private static void resolveFourOfAKindTie(List<Player> players, List<Card> communityCards) {
+    Map<Integer, List<Player>> fourOfAKindGroups = new HashMap<>();
+
+    for (Player player : players) {
+        int fourOfAKindRank = findFourOfAKindRank(player.getHand(), communityCards);
+        fourOfAKindGroups.computeIfAbsent(fourOfAKindRank, new Function<Integer, List<Player>>() {
+            @Override
+            public List<Player> apply(Integer k) {
+                List<Player> playersList = new ArrayList<>();
+                playersList.add(player);
+                return playersList;
+            }
+        }).add(player);
+    }
+
+    int winningFourOfAKindRank = findWinningFourOfAKindRank(fourOfAKindGroups);
+    List<Player> winningPlayers = fourOfAKindGroups.get(winningFourOfAKindRank);
+
+    // Implement further tie-breaking logic if needed
+}
+
+    private static int findFourOfAKindRank(List<Card> hand, List<Card> communityCards) {
+        Map<Integer, Integer> rankCounts = new HashMap<>();
+
+        for (Card card : hand) {
+            rankCounts.put(card.getRank(), rankCounts.getOrDefault(card.getRank(), 0) + 1);
+        }
+
+        for (Card card : communityCards) {
+            rankCounts.put(card.getRank(), rankCounts.getOrDefault(card.getRank(), 0) + 1);
+        }
+
+        for (int rank : rankCounts.keySet()) {
+            if (rankCounts.get(rank) == 4) {
+                return rank;
+            }
+        }
+
+        return -1; // No four of a kind found
+    }
+
+    private static int findWinningFourOfAKindRank(Map<Integer, List<Player>> fourOfAKindGroups) {
+        int winningFourOfAKindRank = -1;
+
+        for (int fourOfAKindRank : fourOfAKindGroups.keySet()) {
+            if (winningFourOfAKindRank == -1 || fourOfAKindRank > winningFourOfAKindRank) {
+                winningFourOfAKindRank = fourOfAKindRank;
+            }
+        }
+
+        return winningFourOfAKindRank;
+    }
+
+    private static void resolveHighCardTie(List<Player> players, List<Card> communityCards) {
+    Map<Integer, List<Player>> highCardGroups = new HashMap<>();
+
+    for (Player player : players) {
+        int highCardRank = findHighCardRank(player.getHand(), communityCards);
+        highCardGroups.computeIfAbsent(highCardRank, new Function<Integer, List<Player>>() {
+            @Override
+            public List<Player> apply(Integer k) {
+                List<Player> playersList = new ArrayList<>();
+                playersList.add(player);
+                return playersList;
+            }
+        }).add(player);
+    }
+
+    int winningHighCardRank = findWinningHighCardRank(highCardGroups);
+    List<Player> winningPlayers = highCardGroups.get(winningHighCardRank);
+
+    // Implement further tie-breaking logic if needed
+}
+
+    private static int findHighCardRank(List<Card> hand, List<Card> communityCards) {
+        List<Card> allCards = new ArrayList<>(hand);
+        allCards.addAll(communityCards);
+
+        int maxRank = -1;
+
+        for (Card card : allCards) {
+            if (card.getRank() > maxRank) {
+                maxRank = card.getRank();
+            }
+        }
+
+        return maxRank;
+    }
+
+    private static int findWinningHighCardRank(Map<Integer, List<Player>> highCardGroups) {
+        int winningHighCardRank = -1;
+
+        for (int highCardRank : highCardGroups.keySet()) {
+            if (winningHighCardRank == -1 || highCardRank > winningHighCardRank) {
+                winningHighCardRank = highCardRank;
+            }
+        }
+
+        return winningHighCardRank;
+    }
+
+    private static int findStraightCard(List<Card> hand, List<Card> communityCards) {
+        List<Card> allCards = new ArrayList<>(hand);
+        allCards.addAll(communityCards);
+
+        // Sort the cards in descending order
+        Collections.sort(allCards, Collections.reverseOrder());
+
+        int count = 0;
+        int lastRank = -1;
+
+        for (Card card : allCards) {
+            int currentRank = card.getRank();
+
+            if (lastRank == -1 || lastRank - currentRank == 1) {
+                count++;
+                lastRank = currentRank;
+            } else {
+                count = 1;
+                lastRank = currentRank;
+            }
+
+            if (count == 5) {
+                return lastRank; // Found the highest card in the straight
+            }
+        }
+
+        return -1; // No straight found
+    }
+
+    private static List<Player> findPlayersWithStraightCard(List<Player> players, List<Card> communityCards, int straightCardRank) {
+        List<Player> result = new ArrayList<>();
+
+        for (Player player : players) {
+            if (hasCard(player.getHand(), straightCardRank) || hasCard(communityCards, straightCardRank)) {
+                result.add(player);
+            }
+        }
+
+        return result;
+    }
+
+    private static boolean hasCard(List<Card> hand, int cardRank) {
+        for (Card card : hand) {
+            if (card.getRank() == cardRank) {
+              return true;
+            }
+    }
+    return false;
+}
+
+    private static boolean hasStraight(List<Card> hand, List<Card> communityCards) {
+        List<Card> allCards = new ArrayList<>(hand);
+        allCards.addAll(communityCards);
+
+        // Sort the cards in descending order
+        Collections.sort(allCards, Collections.reverseOrder());
+
+        int count = 0;
+        int lastRank = -1;
+
+        for (Card card : allCards) {
+            int currentRank = card.getRank();
+
+            if (lastRank == -1 || lastRank - currentRank == 1) {
+                count++;
+                lastRank = currentRank;
+            } else {
+                count = 1;
+                lastRank = currentRank;
+            }
+
+            if (count == 5) {
+                return true; // Found a straight
+            }
+        }
+
+        return false; // No straight found
+    }
+
+    private static void resolveStraightTie(List<Player> players, List<Card> communityCards) {
+    Map<Integer, List<Player>> straightGroups = new HashMap<>();
+
+    for (Player player : players) {
+        boolean hasStraight = hasStraight(player.getHand(), communityCards);
+        straightGroups.computeIfAbsent(Boolean.hashCode(hasStraight), new Function<Integer, List<Player>>() {
+            @Override
+            public List<Player> apply(Integer k) {
+                List<Player> playersList = new ArrayList<>();
+                playersList.add(player);
+                return playersList;
+            }
+        }).add(player);
+    }
+
+    int winningStraightHashCode = findWinningStraightHashCode(straightGroups);
+    List<Player> winningPlayers = straightGroups.get(winningStraightHashCode);
+
+    if (winningPlayers.size() > 1) {
+        int maxStraightCard = -1;
+
+        for (Player player : winningPlayers) {
+            int straightCard = findStraightCard(player.getHand(), communityCards);
+            if (straightCard > maxStraightCard) {
+                maxStraightCard = straightCard;
+            }
+        }
+
+        winningPlayers = findPlayersWithStraightCard(winningPlayers, communityCards, maxStraightCard);
+    }
+
+    // Implement further tie-breaking logic if needed
+}
+
+
+    private static int findFlushCard(List<Player> players, List<Card> communityCards) {
+    List<Card> allCards = new ArrayList<>();
+
+    for (Player player : players) {
+        allCards.addAll(player.getHand());
+    }
+    
+    allCards.addAll(communityCards);
+
+    // Sort the cards in descending order
+    Collections.sort(allCards, Collections.reverseOrder());
+
+    for (Card card : allCards) {
+        int currentRank = card.getRank();
+        if (hasFlush(allCards, currentRank)) {
+            return currentRank; // Found the highest card in the flush
+        }
+    }
+
+    return -1; // No flush found
+}
+
+    private static List<Player> findPlayersWithFlushCard(List<Player> players, List<Card> communityCards, int flushCardRank) {
+        List<Player> result = new ArrayList<>();
+
+        for (Player player : players) {
+            if (hasCard(player.getHand(), flushCardRank) || hasCard(communityCards, flushCardRank)) {
+                result.add(player);
+            }
+        }
+
+        return result;
+    }
+
+    private static boolean hasFlush(List<Card> cards, int rank) {
+    int count = 0;
+
+    for (Card card : cards) {
+        if (card.getRank() == rank) {
+            count++;
+        }
+    }
+
+    return count >= 5;
+}
+
+    private static int findFullHouseRank(List<Player> players, List<Card> communityCards) {
+    List<Card> allCards = new ArrayList<>();
+
+    for (Player player : players) {
+        allCards.addAll(player.getHand());
+    }
+
+    allCards.addAll(communityCards);
+
+    Map<Integer, Integer> rankCounts = new HashMap<>();
+
+    for (Card card : allCards) {
+        rankCounts.put(card.getRank(), rankCounts.getOrDefault(card.getRank(), 0) + 1);
+    }
+
+    int threeOfAKindRank = -1;
+    int pairRank = -1;
+
+    for (int rank : rankCounts.keySet()) {
+        if (rankCounts.get(rank) == 3) {
+            threeOfAKindRank = rank;
+        } else if (rankCounts.get(rank) == 2) {
+            pairRank = rank;
+        }
+    }
+
+    // Check if both three of a kind and pair are present
+    if (threeOfAKindRank != -1 && pairRank != -1) {
+        return Math.max(threeOfAKindRank, pairRank); // Return the higher rank
+    } else {
+        return -1; // No full house found
+    }
+}
+
+    private static int findWinningStraightHashCode(Map<Integer, List<Player>> straightGroups) {
+        int winningStraightHashCode = -1;
+
+        for (int straightHashCode : straightGroups.keySet()) {
+            if (winningStraightHashCode == -1 || straightHashCode > winningStraightHashCode) {
+                winningStraightHashCode = straightHashCode;
+            }
+        }
+
+        return winningStraightHashCode;
+    }
+
+    private static int findWinningFlushHashCode(Map<Integer, List<Player>> flushGroups) {
+        int winningFlushHashCode = -1;
+
+        for (int flushHashCode : flushGroups.keySet()) {
+            if (winningFlushHashCode == -1 || flushHashCode > winningFlushHashCode) {
+                winningFlushHashCode = flushHashCode;
+            }
+        }
+
+        return winningFlushHashCode;
+    }
+
+    private static int findWinningFullHouseRank(Map<Integer, List<Player>> fullHouseGroups) {
+        int winningFullHouseRank = -1;
+
+        for (int fullHouseRank : fullHouseGroups.keySet()) {
+            if (winningFullHouseRank == -1 || fullHouseRank > winningFullHouseRank) {
+                winningFullHouseRank = fullHouseRank;
+            }
+        }
+
+        return winningFullHouseRank;
+
+    }
+    }
