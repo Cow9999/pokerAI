@@ -1,0 +1,108 @@
+import javax.swing.*;
+import javax.imageio.ImageIO;
+import java.awt.*;
+import java.awt.geom.AffineTransform;
+import java.awt.image.BufferedImage;
+import java.io.File;
+import java.io.IOException;
+
+public class images {
+    public static JLabel imageLabel;
+    
+    public static void drawImage(Graphics2D g2d, BufferedImage image, int x, int y, double scale, double angle) {
+        AffineTransform at = new AffineTransform();
+        at.translate(x, y);
+        at.scale(scale, scale);
+        at.rotate(Math.toRadians(angle), image.getWidth() / 2.0, image.getHeight() / 2.0);
+        g2d.drawImage(image, at, null);
+    }
+
+    public static void drawImageWithProperties(images.ImageProperties zeusImageProps) {
+        AffineTransform at = new AffineTransform();
+        at.translate(images.ImageProperties.x, images.ImageProperties.y);
+        at.scale(images.ImageProperties.scale, images.ImageProperties.scale);
+        at.rotate(Math.toRadians(images.ImageProperties.angle), images.ImageProperties.image.getWidth() / 2.0, images.ImageProperties.image.getHeight() / 2.0);
+        images.ImageProperties.g2d.drawImage(images.ImageProperties.image, at, null);
+    }
+
+    public static void drawBackgroundImage(BufferedImage baseImage, int width, int height) {
+        try {
+            BufferedImage backgroundImage = ImageIO.read(new File("poker_Table.png"));
+            Graphics2D g2d = baseImage.createGraphics();
+            g2d.drawImage(backgroundImage.getScaledInstance(width, height, Image.SCALE_SMOOTH), 0, 0, null);
+            g2d.dispose();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public static JFrame createFullScreenWindow() {
+        JFrame frame = new JFrame();
+        frame.setUndecorated(true);
+        frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        frame.setLayout(new BorderLayout());
+        frame.setExtendedState(JFrame.MAXIMIZED_BOTH);
+        frame.setVisible(true);
+        return frame;
+    }
+
+    public static class ImageProperties {
+        public static Graphics2D g2d;
+        public static BufferedImage image;
+        public static int x;
+        public static int y;
+        public static double scale;
+        public static double angle;
+
+        public ImageProperties(Graphics2D g2d, BufferedImage image, int x, int y, double scale, double angle) {
+            images.ImageProperties.g2d = g2d;
+            images.ImageProperties.image = image;
+            images.ImageProperties.x = x;
+            images.ImageProperties.y = y;
+            images.ImageProperties.scale = scale;
+            images.ImageProperties.angle = angle;
+        }
+
+        public static BufferedImage loadImage(String imagePath) {
+            try {
+                return ImageIO.read(new File(imagePath));
+            } catch (IOException e) {
+                e.printStackTrace();
+                return null;
+            }
+        }
+
+        public static void updateDisplayedImage(JLabel imageLabel, String newImagePath) {
+            BufferedImage newImage = loadImage(newImagePath);
+            if (newImage != null) {
+                imageLabel.setIcon(new ImageIcon(newImage));
+            }
+        }
+        public static int getX(){
+            return x;
+        }
+        public static int getY(){
+            return y;
+        }
+        public static double getScale(){
+            return scale;
+        }
+        public static BufferedImage getImage(){
+            return image;
+        }
+        public static Graphics2D getG2D(){
+            return g2d;
+        }
+        public void setImage(String imagePath) {
+            try {
+                images.ImageProperties.image = ImageIO.read(new File(imagePath));
+            } catch (IOException e) {
+                System.out.println("Image could not be loaded: " + imagePath);
+                e.printStackTrace();
+            }
+        }
+    
+        // Method to get the player's image
+        
+    }
+}
