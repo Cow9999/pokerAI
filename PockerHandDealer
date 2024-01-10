@@ -1,9 +1,182 @@
 import java.util.*;
+import java.util.List;
+import javax.swing.*;
+import java.awt.image.BufferedImage;
+import java.awt.*;
+import java.awt.event.KeyEvent;
+import java.awt.event.KeyListener;
+
 
 // Main class for the poker hand dealer
-public class PockerHandDealer { 
+public class PokerHandDealer { 
   
-      private static void playGame(Scanner scanner, int numPlayers) {
+      public static void playGame(Scanner scanner, int numPlayers) {
+        JFrame frame = images.createFullScreenWindow();
+        Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
+        int screenWidth = screenSize.width;
+        int screenHeight = screenSize.height;
+        
+        // Initialize the base image with screen dimensions
+        BufferedImage baseImage = new BufferedImage(screenWidth, screenHeight, BufferedImage.TYPE_INT_ARGB);
+
+        // Draw the background image onto the base image
+        images.drawBackgroundImage(baseImage, screenWidth, screenHeight);
+
+        // Draw additional images with properties
+
+        Graphics2D g2d = baseImage.createGraphics();
+        BufferedImage zeusImage =   images.ImageProperties.loadImage("back_Zeus.png");
+        BufferedImage marsImage = images.ImageProperties.loadImage("back_Mars.png");
+
+        BufferedImage H14 =   images.ImageProperties.loadImage("H14.png");
+        BufferedImage C14 = images.ImageProperties.loadImage("C14.png");
+        BufferedImage D14 =   images.ImageProperties.loadImage("D14.png");
+        BufferedImage S14 = images.ImageProperties.loadImage("S14.png");
+
+        BufferedImage H13 =   images.ImageProperties.loadImage("H14.png");
+        BufferedImage C13 = images.ImageProperties.loadImage("C14.png");
+        BufferedImage D13 =   images.ImageProperties.loadImage("D14.png");
+        BufferedImage S13 = images.ImageProperties.loadImage("S14.png");
+
+        BufferedImage H12 =   images.ImageProperties.loadImage("H14.png");
+        BufferedImage C12 = images.ImageProperties.loadImage("C14.png");
+        BufferedImage D12 =   images.ImageProperties.loadImage("D14.png");
+        BufferedImage S12 = images.ImageProperties.loadImage("S14.png");
+
+        BufferedImage H11 =   images.ImageProperties.loadImage("H14.png");
+        BufferedImage C11 = images.ImageProperties.loadImage("C14.png");
+        BufferedImage D11 =   images.ImageProperties.loadImage("D14.png");
+        BufferedImage S11 = images.ImageProperties.loadImage("S14.png");
+
+        BufferedImage H10 =   images.ImageProperties.loadImage("H14.png");
+        BufferedImage C10 = images.ImageProperties.loadImage("C14.png");
+        BufferedImage D10 =   images.ImageProperties.loadImage("D14.png");
+        BufferedImage S10 = images.ImageProperties.loadImage("S14.png");
+
+        BufferedImage H9 =   images.ImageProperties.loadImage("H14.png");
+        BufferedImage C9 = images.ImageProperties.loadImage("C14.png");
+        BufferedImage D9 =   images.ImageProperties.loadImage("D14.png");
+        BufferedImage S9 = images.ImageProperties.loadImage("S14.png");
+
+        BufferedImage H8 =   images.ImageProperties.loadImage("H14.png");
+        BufferedImage C8 = images.ImageProperties.loadImage("C14.png");
+        BufferedImage D8 =   images.ImageProperties.loadImage("D14.png");
+        BufferedImage S8 = images.ImageProperties.loadImage("S14.png");
+
+        BufferedImage H7 =   images.ImageProperties.loadImage("H14.png");
+        BufferedImage C7 = images.ImageProperties.loadImage("C14.png");
+        BufferedImage D7 =   images.ImageProperties.loadImage("D14.png");
+        BufferedImage S7 = images.ImageProperties.loadImage("S14.png");
+
+        BufferedImage H6 =   images.ImageProperties.loadImage("H6.png");
+        BufferedImage C6 = images.ImageProperties.loadImage("C6.png");
+        BufferedImage D6 =   images.ImageProperties.loadImage("D6.png");
+        BufferedImage S6 = images.ImageProperties.loadImage("S6.png");
+
+        BufferedImage H5 =   images.ImageProperties.loadImage("H5.png");
+        BufferedImage C5 = images.ImageProperties.loadImage("C5.png");
+        BufferedImage D5 =   images.ImageProperties.loadImage("D5.png");
+        BufferedImage S5 = images.ImageProperties.loadImage("S5.png");
+
+        BufferedImage H4 =   images.ImageProperties.loadImage("H4.png");
+        BufferedImage C4 = images.ImageProperties.loadImage("C4.png");
+        BufferedImage D4 =   images.ImageProperties.loadImage("D4.png");
+        BufferedImage S4 = images.ImageProperties.loadImage("S4.png");
+
+        BufferedImage H3 =   images.ImageProperties.loadImage("H3.png");
+        BufferedImage C3 = images.ImageProperties.loadImage("C3.png");
+        BufferedImage D3 =   images.ImageProperties.loadImage("D3.png");
+        BufferedImage S3 = images.ImageProperties.loadImage("S3.png");
+
+        BufferedImage H2 =   images.ImageProperties.loadImage("H2.png");
+        BufferedImage C2 = images.ImageProperties.loadImage("C2.png");
+        BufferedImage D2 =   images.ImageProperties.loadImage("D2.png");
+        BufferedImage S2 = images.ImageProperties.loadImage("S2.png");
+
+        BufferedImage[] cardImages = {
+            H14, C14, D14, S14,
+            H13, C13, D13, S13,
+            H12, C12, D12, S12,
+            H11, C11, D11, S11,
+            H10, C10, D10, S10,
+            H9, C9, D9, S9,
+            H8, C8, D8, S8,
+            H7, C7, D7, S7,
+            H6, C6, D6, S6,
+            H5, C5, D5, S5,
+            H4, C4, D4, S4,
+            H3, C3, D3, S3,
+            H2, C2, D2, S2
+        };
+        
+
+
+        images.ImageProperties player2card1Props = new images.ImageProperties(g2d, marsImage, 1600, 1350, 0.15, 0);
+        images.drawImageWithProperties(player2card1Props);
+
+        images.ImageProperties player2card2Props = new images.ImageProperties(g2d, zeusImage, 1650, 1350, 0.15, 0);
+        images.drawImageWithProperties(player2card2Props);
+
+        images.ImageProperties player3card1Props = new images.ImageProperties(g2d, zeusImage, 1300, 1300, 0.15, 45);
+        images.drawImageWithProperties(player3card1Props);
+
+        images.ImageProperties player3card2Props = new images.ImageProperties(g2d, marsImage, 1350, 1350, 0.15, 45);
+        images.drawImageWithProperties(player3card2Props);
+
+        images.ImageProperties player4card1Props = new images.ImageProperties(g2d, zeusImage, 1200, 1000, 0.15, 90);
+        images.drawImageWithProperties(player4card1Props);
+
+        images.ImageProperties player4card2Props = new images.ImageProperties(g2d, marsImage, 1200, 1050, 0.15, 90);
+        images.drawImageWithProperties(player4card2Props);
+
+        images.ImageProperties player5card1Props = new images.ImageProperties(g2d, zeusImage, 1300, 750, 0.15, 135);
+        images.drawImageWithProperties(player5card1Props);
+
+        images.ImageProperties player5card2Props = new images.ImageProperties(g2d, marsImage, 1350, 700, 0.15, 135);
+        images.drawImageWithProperties(player5card2Props);
+
+        images.ImageProperties player6card1Props = new images.ImageProperties(g2d, zeusImage, 1600, 600, 0.15, 180);
+        images.drawImageWithProperties(player6card1Props);
+
+        images.ImageProperties player6card2Props = new images.ImageProperties(g2d, marsImage, 1650, 600, 0.15, 180);
+        images.drawImageWithProperties(player6card2Props);
+
+        images.ImageProperties player7card1Props = new images.ImageProperties(g2d, zeusImage, 2100, 600, 0.15, 180);
+        images.drawImageWithProperties(player7card1Props);
+
+        images.ImageProperties player7card2Props = new images.ImageProperties(g2d, marsImage, 2150, 600, 0.15, 180);
+        images.drawImageWithProperties(player7card2Props);
+        
+        images.ImageProperties player8card1Props = new images.ImageProperties(g2d, zeusImage, 2400, 700, 0.15, 225);
+        images.drawImageWithProperties(player8card1Props);
+
+        images.ImageProperties player8card2Props = new images.ImageProperties(g2d, marsImage, 2450, 750, 0.15, 225);
+        images.drawImageWithProperties(player8card2Props);
+
+        images.ImageProperties player9card1Props = new images.ImageProperties(g2d, zeusImage, 2600, 1050, 0.15, 270);
+        images.drawImageWithProperties(player9card1Props);
+
+        images.ImageProperties player9card2Props = new images.ImageProperties(g2d, marsImage, 2600, 1000, 0.15, 270);
+        images.drawImageWithProperties(player9card2Props);
+
+        images.ImageProperties player10card1Props = new images.ImageProperties(g2d, zeusImage, 2400, 1350, 0.15, 315);
+        images.drawImageWithProperties(player10card1Props);
+
+        images.ImageProperties player10card2Props = new images.ImageProperties(g2d, marsImage, 2450, 1300, 0.15, 315);
+        images.drawImageWithProperties(player10card2Props);
+
+        
+
+
+
+
+        // Display the modified base image in the JFrame
+        JLabel label = new JLabel(new ImageIcon(baseImage));
+        frame.getContentPane().add(label);
+        frame.revalidate();
+        
+        // Add key listener for escape key
+        frame.setFocusable(true); // To receive key events
         Deck deck = new Deck();
         deck.shuffle();
         System.out.println("");
@@ -11,16 +184,17 @@ public class PockerHandDealer {
         Player player1 = new Player(1000, false);
         player1.setHand(deck.dealHand(2));
         player1.bet(100);
-        System.out.println("Player" + 1 + "'s Chips: " + player1.getChips());
-        System.out.println("Player" + 1 + "'s Hand: " + player1.getHand());
         players.add(player1);
+        images.ImageProperties player1card1Props = new images.ImageProperties(g2d, cardImages[Deck.cardIndex(player1.getCard(0))], 2100, 1350, 0.15, 0);
+        images.drawImageWithProperties(player1card1Props);
+
+        images.ImageProperties player1card2Props = new images.ImageProperties(g2d, cardImages[Deck.cardIndex(player1.getCard(1))], 2150, 1350, 0.15, 0);
+        images.drawImageWithProperties(player1card2Props);
         for(int i = 2; i<= numPlayers; i++ ){
-          Player player = new Player(1000, false);
-          player.setHand(deck.dealHand(2));
-          players.add(player);
-          player.bet(100);
-          System.out.println("Player" + i + "'s Chips: " + player.getChips());
-          System.out.println("Player" + i + "'s Hand: " + player.getHand());
+            Player player = new Player(1000, false);
+            player.setHand(deck.dealHand(2));
+            players.add(player);
+            player.bet(100);
         }
         List<Card> burnCards = new ArrayList<>();
         burnCards.add(deck.dealHand(1).get(0));
@@ -38,41 +212,78 @@ public class PockerHandDealer {
 
         System.out.println("What is your action");
         
-        //First action betting bling
-        if(Player.getFold(1) == false){
-        player1.bettingRound(scanner, deal);
-        }
+        //First action
+        frame.addKeyListener(new KeyListener() {
+            public void keyPressed(KeyEvent action) {
+                if(Player.getFold(1) == false){
+                    if (action.getKeyCode() == KeyEvent.VK_ENTER) {
+                        String betAmountStr = JOptionPane.showInputDialog("Enter bet amount:");
+                        int betAmount = Integer.parseInt(betAmountStr);
+                        player1.bet(betAmount);
+                    }
+                }
+            }
+            public void keyReleased(KeyEvent e) {}
+            public void keyTyped(KeyEvent e) {}
+        });
+        images.ImageProperties flopCard1Props = new images.ImageProperties(g2d, marsImage, 1800, 1000, 0.2, 0);
+        images.drawImageWithProperties(flopCard1Props);
+        images.ImageProperties flopCard2Props = new images.ImageProperties(g2d, marsImage, 1650, 1000, 0.2, 0);
+        images.drawImageWithProperties(flopCard2Props);
+        images.ImageProperties flopCard3Props = new images.ImageProperties(g2d, marsImage, 1500, 1000, 0.2, 0);
+        images.drawImageWithProperties(flopCard3Props);
+
         //The Flop
         System.out.println("The deal is " + deal);
 
         System.out.println("What is your action");
        
         //The second action based on the flop
-        if(Player.getFold(1) == false){
-        player1.bettingRound(scanner, deal);
-        }
+        frame.addKeyListener(new KeyListener() {
+            public void keyPressed(KeyEvent action) {
+                if(Player.getFold(1) == false){
+                    player1.bettingRound(action.getKeyChar());
+                }
+            }
+            public void keyReleased(KeyEvent e) {}
+            public void keyTyped(KeyEvent e) {}
+        });
 
         //adds the turn card to the deal
         deal.addAll(turnCards);
-
+        images.ImageProperties turnCard1Props = new images.ImageProperties(g2d, marsImage, 2000, 1000, 0.2, 0);
+        images.drawImageWithProperties(turnCard1Props);
         //see the turn
         System.out.println("The deal is " + deal);
 
         System.out.println("What is your action");
 
         deal.addAll(riverCards);
+        images.ImageProperties riverCard1Props = new images.ImageProperties(g2d, marsImage, 2150, 1000, 0.2, 0);
+        images.drawImageWithProperties(riverCard1Props);
 
-        if(Player.getFold(1) == false){
-        player1.bettingRound(scanner, deal);
-        }
-
+        frame.addKeyListener(new KeyListener() {
+            public void keyPressed(KeyEvent action) {
+                if(Player.getFold(1) == false){
+                    player1.bettingRound(action.getKeyChar());
+                }
+            }
+            public void keyReleased(KeyEvent e) {}
+            public void keyTyped(KeyEvent e) {}
+        });
         System.out.println("The final deal is " + deal);
 
         System.out.println("What is your action");
 
-        if(Player.getFold(1) == false){
-        player1.bettingRound(scanner, deal);
-        }
+        frame.addKeyListener(new KeyListener() {
+            public void keyPressed(KeyEvent action) {
+                if(Player.getFold(1) == false){
+                    player1.bettingRound(action.getKeyChar());
+                }
+            }
+            public void keyReleased(KeyEvent e) {}
+            public void keyTyped(KeyEvent e) {}
+        });
         List<Double> handranks = new ArrayList<>();
         for (int i = 0; i < players.size(); i++) {
           Player player = players.get(i);
@@ -81,6 +292,7 @@ public class PockerHandDealer {
               String handType = PokerHandEvaluator.getHandName(player.getHand(), deal);
               handranks.add(handRank);
               System.out.println("Player " + (i + 1) + "'s Hand: " + player.getHand() + " - " + handType);
+              iftie.resolveTie(players, deal);
           } else {
               System.out.println("Player " + (i + 1) + " folded.");
           }
@@ -88,11 +300,8 @@ public class PockerHandDealer {
       Player.checkWin(players, deal);
         
       }
-        //if (handType1.equals(handType2) && handRank1 == handRank2) {
-          //System.out.println(SamHandEval.determineHigherHand(player1.getHand(), player2.getHand()));
-      //}
       
-        private static void replay(Scanner scanner, int numPlayers) {
+        public static void replay(Scanner scanner, int numPlayers) {
           while (true) {
               System.out.println("Do you want to play another round? (yes/no)");
               String response = scanner.nextLine();
@@ -106,18 +315,5 @@ public class PockerHandDealer {
               }
           }
       }
-  
-      public static void main(String[] args) {
-        try (Scanner scanner = new Scanner(System.in)) {
-          System.out.println("How Many players would you like to play with");
-          int numPlayers = Integer.parseInt(scanner.nextLine());
-          while (numPlayers < 2 || numPlayers > 10) {
-            System.out.println("Invalid number. Enter a number between 2 and 10:");
-            numPlayers = Integer.parseInt(scanner.nextLine());
-        }
-          playGame(scanner, numPlayers);
-          replay(scanner, numPlayers);   
-      }
   }
-}
 
