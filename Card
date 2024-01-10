@@ -28,5 +28,14 @@ public class Card {
         public Integer getRank() {
           return this.rank;
         }
+        
+        public int compareTo(Card other) {
+            // Example: Sort primarily by rank, then by suit
+            int rankComparison = Integer.compare(this.getRank(), other.getRank());
+            if (rankComparison != 0) {
+                return rankComparison;
+            }
+            return this.getSuit().compareTo(other.getSuit());
+        }
   
-    }
+}
