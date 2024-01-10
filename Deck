@@ -1,26 +1,45 @@
 import java.util.*;
+
 public class Deck {
-        private List<Card> cards;
+        private static List<Card> cards;
 
         // Deck constructor to initialize and populate the deck
         public Deck() {
-            this.cards = new ArrayList<>();
+            Deck.cards = new ArrayList<>();
             // Array of all card suits and ranks
-            String[] suits = {"H2","H3","H4","H5","H6","H7","H8","H9","H10","HJ","HQ","HK","HA",  
-                              "D2","D3","D4","D5","D6","D7","D8","D9","D10","DJ","DQ","DK","DA", 
-                              "S2","S3","S4","S5","S6","S7","S8","S9","S10","SJ","SQ","SK","SA", 
-                              "C2","C3","C4","C5","C6","C7","C8","C9","C10","CJ","CQ","CK","CA"};
+            String[] suits = {
+            "H14", "C14", "D14", "S14",
+            "H13", "C13", "D13", "S13",
+            "H12", "C12", "D12", "S12",
+            "H11", "C11", "D11", "S11",
+            "H10", "C10", "D10", "S10",
+            "H9", "C9", "D9", "S9",
+            "H8", "C8", "D8", "S8",
+            "H7", "C7", "D7", "S7",
+            "H6", "C6", "D6", "S6",
+            "H5", "C5", "D5", "S5",
+            "H4", "C4", "D4", "S4",
+            "H3", "C3", "D3", "S3",
+            "H2", "C2", "D2", "S2"};
 
             // Populating the deck with cards
             for (String suit : suits) {
-                this.cards.add(new Card(suit));
+                Deck.cards.add(new Card(suit));
             }
         }
+        public static int cardIndex(String card){
+            for(int i=0; i<cards.size(); i++){
+                if(cards.get(i).toString().equals(card)){
+                   return i;
+                }
+            }
+            return 0;
+        }   
 
         // Shuffles the deck
         public void shuffle() {
-            Collections.shuffle(this.cards);
-        }        
+            Collections.shuffle(Deck.cards);
+        }     
         // Deals a hand of specified number of cards
         public List<Card> dealHand(int numberOfCards) {
             List<Card> hand = new ArrayList<>();
