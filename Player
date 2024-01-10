@@ -2,6 +2,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Scanner;
 
+import javax.swing.JLabel;
+
 
 public class Player {
         public static final int List = 0;
@@ -12,12 +14,20 @@ public class Player {
         public boolean folded;
         public int chips;
         public static int pot;
+        private JLabel infoLabel;
 
         // Player constructor
         public Player(int initialChips, boolean folded) {
-            this.chips = initialChips;
-            this.folded = false;
-            this.hand = new ArrayList<>();
+        infoLabel = new JLabel();
+        this.chips = initialChips;
+        this.folded = false;
+        this.hand = new ArrayList<>();
+        }
+
+
+    // ... other existing methods ...
+        public void setInfoText(String text) {
+        infoLabel.setText(text);
         }
         public static void setPot(int newPot){
             pot=newPot;
@@ -32,6 +42,9 @@ public class Player {
         public List<Card> getHand() {
             return hand;
         }
+        public String getCard(int x) {
+            return hand.get(x).toString();
+        }
 
         // Gets the player's chip count
         public int getChips() {
@@ -39,13 +52,6 @@ public class Player {
         }
 
         // Player bets a certain amount of chips
-        public void bet(int amount) {
-            if (amount > chips) {
-                amount = chips;
-            }
-            chips -= amount;
-            pot += amount;
-        }
 
         // Player wins a certain amount of chips
         public void win() {
@@ -63,72 +69,32 @@ public class Player {
         public static boolean getFold(int numPlayers){
             return folds[numPlayers];
         }
-    
-        public int getBetAmount(Scanner scanner) {
-        int amount;
-
-            while (true) {
-                System.out.println("Enter your bet amount (You have " + this.getChips() + " chips):");
-
-                while (!scanner.hasNextInt()) {
-                    System.out.println("Invalid input. Please enter a valid number.");
-                    scanner.next(); // Consume the invalid input
-                }
-
-                amount = scanner.nextInt();
-                scanner.nextLine(); // Consume newline left-over
-
-                if (amount <= this.getChips() && amount > 0) {
-                    break; // Valid amount entered
-                } else {
-                    System.out.println("Invalid amount. You can bet up to " + this.getChips() + " chips.");
-                }
-            }
-
-            return amount;
+        public void bet(int amount) {
+            chips -= amount;
+            pot+=amount;
+            infoLabel.setText("You bet " + amount + " chips. Remaining chips: " + chips);
         }
-        public void bettingRound(Scanner scanner, List<Card> deal) {
-            // Display player's hand and chips
-            
-            System.out.println("Your Hand: " + this.getHand());
-            System.out.println("Your Chips: " + this.getChips());
-            System.out.println("The Pot is: "+pot);
-          
-            // Ask if player wants to bet
-              System.out.println("Enter your action (B for bet, C for check, F for fold):");  
-              String action = scanner.nextLine();
-            if (folded == false){
-              switch(action.toUpperCase()) {
-          
-                case "B":  
-                  // Bet logic
-                  int betAmount = getBetAmount(scanner); 
-                  bet(betAmount);
-                  break;
-                  
-                case "C":
-                  // Check logic
-                  System.out.println("You checked.");
-                  break;
-                  
-                case "F":
-                  // Fold logic
-                  System.out.println("You folded."); 
-                  folded = true;
-                  break;
-                case "R":
-                int raiseAmount = getBetAmount(scanner); 
-                bet(raiseAmount);
-                  
+    
+        public void bettingRound(char keyChar) {
+            switch (Character.toUpperCase(keyChar)) {
+                case 'B':
+                    // Bet logic
+                    // You'll need to implement a way to input the bet amount
+                    bet(10); // Example bet amount
+                    break;
+                case 'C':
+                    // Check logic
+                    infoLabel.setText("You checked.");
+                    break;
+                case 'F':
+                    // Fold logic
+                    infoLabel.setText("You folded.");
+                    break;
                 default:
-                  System.out.println("Invalid action. Checking.");
-                  break;  
+                    infoLabel.setText("Invalid key. Press B, C, or F.");
+                    break;
             }
-          }
-          else if(folded == true){
-            System.out.println("Action ignored due to previous fold.");
-          }
-    }
+        }
     public static List<Player> checkWin(List<Player> players, List<Card> communityCards) {
         double highestRank = 0;
         int totalPot = pot;
@@ -148,6 +114,7 @@ public class Player {
                 }
             }
         }
+            iftie.resolveTie(winners, communityCards);
     
         // Calculate winnings and update each winner's chips
         int winnings = totalPot / winners.size();
