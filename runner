@@ -1,0 +1,11 @@
+import java.util.*;
+
+
+public class runner {
+    public static void main(String[] args) {
+        Scanner scanner = new Scanner(System.in);
+        int numPlayers = 10;
+        PokerHandDealer.playGame(scanner, numPlayers);
+        PokerHandDealer.replay(scanner, numPlayers);   
+    }
+}
